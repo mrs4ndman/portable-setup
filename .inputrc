@@ -1,0 +1,13 @@
+# Ctrl + C no sale más como keypress al presionarlo | Ctrl + c does not appear as Keypress when using it
+set echo-control-characters off
+
+# Tab completion configuration
+# set show-all-if-ambiguous on
+set completion-query-items 200
+set bell-style none
+
+# Keybindings: 
+"\C-b":"fv \n"
+"\C-f":"tmux neww tmux-sessionizer \n"
+"\en":"nvim \n"
+# "\en":"tmux neww nvim \n"

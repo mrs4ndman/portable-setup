@@ -86,10 +86,6 @@ alias l='ls -CF'
 # ~/.bash_aliases, instead of adding them here directly.
 # See /usr/share/doc/bash-doc/examples in the bash-doc package.
 
-if [ -f ~/.bash_aliases ]; then
-    . ~/.bash_aliases
-fi
-
 #--------------------------------------------------------------#
 #                                                              #     
 #      CUSTOM CONFIG : ALIASES, KEYBINDS, PROMPTS, ETC.        #
@@ -97,6 +93,23 @@ fi
 #               https://github.com/mrs4ndman                   #
 #                                                              #
 #--------------------------------------------------------------#
+
+#------------------------- EXPORTS ----------------------------#
+
+export BROWSER="firefox"
+export BASHRC="$HOME/.bashrc"
+export EDITOR="vim"
+export FZF_DEFAULT_COMMAND='rg --files --hidden -g "!.git" '
+export FZF_DEFAULT_OPTS='-m --height 40% --border'
+export MAINED="nvim"
+export PATH="$HOME/.cargo/bin:$HOME/.fzf/bin:$HOME/.local/bin:$HOME/.local/scripts:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games"
+export VIMRC="$HOME/.vimrc"
+export NVIMRC="$HOME/dotfiles/nvim/.config/nvim/lua/mrsandman/main.lua"
+export VISUAL="vim"
+export OBSIDIAN_VAULT="$HOME/Documents/Obsidian Vaults/Dashboard/Current TO-DO.md"
+set -o vi
+
+#-------------------------------------------------------------#
 
 #------------- MIS PROPIOS ALIAS - MY OWN ALIASES -------------#
 
@@ -126,6 +139,7 @@ alias minifetch='neofetch --config ~/.config/neofetch/minifetch.conf'
 alias monke='termtyper'
 alias nft='neofetch'
 alias nv='nvim'
+alias nvdiff='nvim -d'
 alias nyan='nyancat -n'
 alias powershell='pwsh'
 alias powsh='pwsh'
@@ -250,6 +264,7 @@ alias gpo='git push origin'
 alias grv='git revert'
 alias grc='git rm --cached'
 alias gst='git status'
+alias gs='git status -s'
 alias gsh='git stash'
 alias gsa='git stash apply'
 alias gsl='git stash list'
@@ -260,11 +275,13 @@ alias gsp='git stash pop'
 
 #----------------------- TMUX ALIAS ZONE ----------------------#
 
+alias tbg-switch='tmux new-session -ds tmux-bg && tmux switch-client -t tmux-bg'
 alias tls='tmux ls'
 alias tks='tmux kill-session -t'
 alias trs='tmux rename-session'
 alias twin='$HOME/.local/scripts/tmux-windowizer'
-
+# Tmux obsidian session
+alias tobs='tmux new-session -ds obsidian -c ~/Documents/Obsidian\ Vaults'
 #--------------------------------------------------------------#
 
 #--- ARCHIVE EXTRACTOR - EXTRACTOR DE ARCHIVOS COMPRIMIDOS ---#
@@ -275,20 +292,20 @@ ex ()
 {
     if [ -f $1 ] ; then
         case $1 in
-            *.tar.bz2)  tar xjf $1  ;;
-            *.tar.gz)   tar xzf $1  ;;
-            *.bz2)      bunzip2 $1  ;;
-            *.rar)      unrar x $1  ;;
-            *.gz)       gunzip $1   ;;
-            *.tar)      tar xf $1   ;;
-            *.tbz2)     tar xjf $1  ;;
-            *.tgz)      tar xzf $1  ;;
-            *.zip)      unzip $1    ;;
-            *.Z)        uncompress $1;;
-            *.7z)       7za e x $1  ;;
-            *.deb)      ar x $1     ;;
-            *.tar.xz)   tar xf $1   ;;
-            *.tar.zst)  unzstd $1   ;;
+            *.tar.bz2)  tar xjf "$1"   ;;
+            *.tar.gz)   tar xzf "$1"   ;;
+            *.bz2)      bunzip2 "$1"   ;;
+            *.rar)      unrar x "$1"   ;;
+            *.gz)       gunzip "$1"    ;;
+            *.tar)      tar xf "$1"    ;;
+            *.tbz2)     tar xjf "$1"   ;;
+            *.tgz)      tar xzf "$1"   ;;
+            *.zip)      unzip "$1"     ;;
+            *.Z)        uncompress "$1";;
+            *.7z)       7za e x "$1"   ;;
+            *.deb)      ar x "$1"      ;;
+            *.tar.xz)   tar xf "$1"    ;;
+            *.tar.zst)  unzstd "$1"    ;;
             *)          echo "'$1' could not be extracted with ex() - No se ha podido extraer con ex" ;;
         esac
     else
@@ -296,7 +313,6 @@ ex ()
     fi
 }
 #--------------------------------------------------------------#
-
 
 #------------- AUTOCOMPLETION - AUTOCOMPLETACIÓN --------------#
 
@@ -311,3 +327,35 @@ if ! shopt -oq posix; then
         . /etc/bash_completion
     fi
 fi
+
+#--------------------------------------------------------------#
+#
+#----------------- CREATE THEN CHANGE DIR --------------------#
+
+function mkcd() {
+    mkdir "$1" && cd "$1" || return
+}
+
+#--------------------------------------------------------------#
+
+#------------------TMUX SENDER FOR OUTPUTS --------------------#
+function tsend () {
+    local input=""
+    if [[ -p /dev/stdin ]]; then
+        input="$(cat < /dev/stdin)"
+    else
+        input="$@"
+    fi
+
+    TMUX_SELECTED_SESSION=$(tmux list-sessions | sed 's/^\([^:]*\):.*/\1/' | $HOME/.fzf/bin/fzf --reverse)
+    tmux send-keys -t "$TMUX_SELECTED_SESSION" "$input" ENTER
+}
+
+function tns () { 
+    tmux new-session -ds $1 && tmux switch-client -t $1
+}
+
+function tbg () {
+    tmux new-session -ds "$1" && tmux send-key -t "$1" "$2" ENTER
+}
+#--------------------------------------------------------------#

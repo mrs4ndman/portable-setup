@@ -27,6 +27,8 @@ Plug 'itchyny/lightline.vim'
 Plug 'rose-pine/vim'
 Plug 'ryanoasis/vim-devicons'
 Plug 'airblade/vim-gitgutter'
+Plug 'sheerun/vim-polyglot'
+Plug 'mhinz/vim-startify'
 
 " UX
 Plug 'farmergreg/vim-lastplace'
@@ -56,7 +58,7 @@ endif
 set updatetime=50
 
 " Use system clipboard by default
-set clipboard=unnamedplus
+set clipboard+=unnamed
 
 " No burrito wrapping
 set nowrap
@@ -93,7 +95,7 @@ set mouse=nvi
 
 " Use the system clipboard | Usa el portapapeles del sistema, en vez del
 " propio
-set clipboard=unnamedplus
+set clipboard+=unnamedplus
 
 " Enable auto-completion | Habilita una forma sencilla de autocompletado
 set completeopt=menuone,longest,preview
@@ -212,6 +214,30 @@ let g:lightline = {
         \ 't' : 'T',
         \ },
     \ }
+
+let s:header = [
+            \ '',
+            \ '',
+            \ ]
+
+let s:footer = [
+            \ '                     +-------------------------------------------+',
+            \ '                     |            ThinkVim ^_^                   |',
+            \ '                     |    Talk is cheap Show me the code         |',
+            \ '                     |                                           |',
+            \ '                     |            GitHub:taigacute               |',
+            \ '                     +-------------------------------------------+',
+            \ ]
+
+function! s:center(lines) abort
+    let longest_line   = max(map(copy(a:lines), 'strwidth(v:val)'))
+    let centered_lines = map(copy(a:lines),
+                \ 'repeat(" ", (&columns / 2) - (longest_line / 2)) . v:val')
+    return centered_lines
+endfunction
+
+let g:startify_custom_header = s:center(s:header)
+let g:startify_custom_footer = s:center(s:footer)
 
 " Set the color scheme | Lugar definido para esquemas de colores custom
 set background=dark
